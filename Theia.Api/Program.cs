@@ -10,7 +10,7 @@ namespace Theia.Api
 {
     class Program
     {
-        private const string BaseAddress = "http://localhost:6535/";
+        private const string BaseAddress = "http://*:6535";
         static void Main(string[] args)
         {
             DisplayIPAddresses();
