@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
 using System.Web.Http;
 using Theia.Infrastructure.Calculation;
 using Theia.Infrastructure.Models;
@@ -21,10 +24,18 @@ namespace Theia.Api.Controllers
 
         [Route("api/calculation/calculate/")]
         [HttpPost]
-        public CalculationModelResponse Calculate(JsonCalculationRequestModel calculationRequest)
+        public HttpResponseMessage Calculate(JsonCalculationRequestModel calculationRequest)
         {
-            var calculationModelResponse =_calculationServiceAdapter.Calculate(calculationRequest);
-            return calculationModelResponse;
+            try
+            {
+                var calculationModelResponse = _calculationServiceAdapter.Calculate(calculationRequest);
+                return Request.CreateResponse(HttpStatusCode.OK, calculationModelResponse);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, new { Error = e.Message});
+            }
         }
 
         //[Route("api/calculation/calculate/")]

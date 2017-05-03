@@ -3,20 +3,20 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 using Microsoft.Owin.Hosting;
+using Theia.Common.Utilits;
 
 namespace Theia.Api
 {
     class Program
     {
-        private const string BaseAddress = "http://*:6535";
         static void Main(string[] args)
         {
-            DisplayIPAddresses();
+            DisplayIpAddresses();
             try
             {
-                using (WebApp.Start<Startup>(url: BaseAddress))
+                var address = $"{StaticVariables.TheiaHost}:{StaticVariables.TheiaPort}";
+                using (WebApp.Start<Startup>(address))
                 {
                     Console.WriteLine("Application started...");
                     Console.ReadKey();
@@ -29,7 +29,7 @@ namespace Theia.Api
             
         }
 
-        public static void DisplayIPAddresses()
+        public static void DisplayIpAddresses()
         {
             try
             {
@@ -44,7 +44,7 @@ namespace Theia.Api
                     IPInterfaceProperties properties = network.GetIPProperties();
 
                     // Each network interface may have multiple IP addresses 
-                    foreach (IPAddressInformation address in properties.UnicastAddresses)
+                    foreach (var address in properties.UnicastAddresses)
                     {
                         // We're only interested in IPv4 addresses for now 
                         if (address.Address.AddressFamily != AddressFamily.InterNetwork)
@@ -54,7 +54,7 @@ namespace Theia.Api
                         if (IPAddress.IsLoopback(address.Address))
                             continue;
 
-                        sb.AppendLine(address.Address.ToString() + " (" + network.Name + ")");
+                        sb.AppendLine(address.Address + " (" + network.Name + ")");
                     }
                 }
 

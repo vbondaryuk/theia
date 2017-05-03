@@ -8,5 +8,6 @@ namespace Theia.Services.SourceCodeBuilders.JsonCodeGenerator
         public string Name { get; set; }
         public Dictionary<string, string> Properties { get; set; }
         public abstract string GetTypeFromSchema(JSchema parent, JSchema jsonSchema, string name = null);
+        public abstract string GetArrayTypeFromSchema(string name);
     }
 }

@@ -6,19 +6,31 @@ using Newtonsoft.Json.Schema;
 
 namespace Theia.Services.SourceCodeBuilders.JsonCodeGenerator
 {
-    public class SourceCodeGenerator<T> where T : ObjectDefinition, new()
+    public sealed class SourceCodeGenerator<T> where T : ObjectDefinition, new()
     {
-        public string RootClassName { get; }
-        public List<T> ObjectDefinitions { get; }
+        private readonly List<SchemaInfoTuple> _schemaInfoTuples;
+        private readonly List<T> _objectDefinitions;
 
-        public SourceCodeGenerator(JSchema schema, string rootClassName)
+        public SourceCodeGenerator(List<SchemaInfoTuple> schemaInfoTuples)
         {
-            RootClassName = rootClassName;
-            ObjectDefinitions = new List<T>();
-            ConvertJsonSchemaToModel(schema);
+            _schemaInfoTuples = schemaInfoTuples;
+            _objectDefinitions = new List<T>();
         }
 
-        private void ConvertJsonSchemaToModel(JSchema schema)
+        public SourceCodeGenerator(JSchema schema, string rootClassName)
+            : this(new List<SchemaInfoTuple> { new SchemaInfoTuple(schema, rootClassName) })
+        {
+        }
+
+        public string Generate()
+        {
+            foreach (var schemaInfoTuple in _schemaInfoTuples)
+            {
+                ConvertJsonSchemaToModel(schemaInfoTuple.JSchema, schemaInfoTuple.RootClassName);
+            }
+            return ToString();
+        }
+        private void ConvertJsonSchemaToModel(JSchema schema, string rootClassName)
         {
             if (schema.Type == null)
                 throw new Exception("Schema does not specify a type.");
@@ -26,13 +38,13 @@ namespace Theia.Services.SourceCodeBuilders.JsonCodeGenerator
             switch (schema.Type)
             {
                 case JSchemaType.Object:
-                    CreateTypeFromSchema(schema, RootClassName);
+                    CreateTypeFromSchema(schema, rootClassName);
                     break;
 
                 case JSchemaType.Array:
                     foreach (var item in schema.Items.Where(x => x.Type.HasValue && x.Type == JSchemaType.Object))
                     {
-                        CreateTypeFromSchema(item, RootClassName);
+                        CreateTypeFromSchema(item, rootClassName);
                     }
                     break;
             }
@@ -40,30 +52,54 @@ namespace Theia.Services.SourceCodeBuilders.JsonCodeGenerator
 
         private T CreateTypeFromSchema(JSchema schema, string name = null)
         {
-            var def = new T
+            var objectName = name ?? schema.Title;
+            var properties = schema.Properties.ToDictionary(item => item.Key.Trim(),
+                item => GetTypeFromSchema(schema, item.Value, item.Key));
+            var def = _objectDefinitions.FirstOrDefault(x => x.Name == objectName);
+            if (def == null)
             {
-                Name = name ?? schema.Title,
-                Properties =
-                    schema.Properties.ToDictionary(item => item.Key.Trim(),
-                        item => GetTypeFromSchema(schema, item.Value, item.Key))
-            };
-
-            ObjectDefinitions.Add(def);
+                def = new T { Name = objectName };
+                _objectDefinitions.Add(def);
+            }
+            else
+            {
+                foreach (var defProperty in def.Properties)
+                {
+                    if (!properties.ContainsKey(defProperty.Key))
+                    {
+                        properties.Add(defProperty.Key, defProperty.Value);
+                    }
+                }
+            }
+            def.Properties = properties;
             return def;
         }
 
         private string GetTypeFromSchema(JSchema parent, JSchema jsonSchema, string name = null)
         {
-            if (jsonSchema.Type != JSchemaType.Object)
-                return new T().GetTypeFromSchema(parent, jsonSchema, name);
-            var def = CreateTypeFromSchema(jsonSchema, name);
-            return def.Name;
+            switch (jsonSchema.Type)
+            {
+                case JSchemaType.Object:
+                    var def = CreateTypeFromSchema(jsonSchema, name);
+                    return def.Name;
+                case JSchemaType.Array:
+                    var item = jsonSchema.Items.First();
+
+                    if (item.Type == JSchemaType.Object)
+                    {
+                        CreateTypeFromSchema(item, name);
+                        return new T().GetArrayTypeFromSchema(name);
+                    }
+                    return new T().GetTypeFromSchema(parent, jsonSchema, name);
+                default:
+                    return new T().GetTypeFromSchema(parent, jsonSchema, name);
+            }
         }
 
         public override string ToString()
         {
             var sb = new StringBuilder();
-            foreach (var objectDefinition in ObjectDefinitions)
+            foreach (var objectDefinition in _objectDefinitions)
             {
                 sb.AppendLine(objectDefinition.ToString());
             }

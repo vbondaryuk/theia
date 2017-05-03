@@ -59,6 +59,7 @@
     <Compile Include="ObjectBuilders\ObjectBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SourceCodeBuilders\JsonCodeGenerator\CSharpObjectDefinition.cs" />
+    <Compile Include="SourceCodeBuilders\JsonCodeGenerator\SchemaInfoTuple.cs" />
     <Compile Include="SourceCodeBuilders\JsonSourceCodeBuilder.cs" />
     <Compile Include="SourceCodeBuilders\JsonCodeGenerator\ObjectDefinition.cs" />
     <Compile Include="SourceCodeBuilders\JsonCodeGenerator\SourceCodeGenerator.cs" />

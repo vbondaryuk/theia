@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "name": "theia-schema-generator",
+  "dependencies": {
+    "express": "4.15.2",
+    "body-parser": "1.17.1",
+    "json-schema-generator": "2.0.3",
+    "generate-schema":"2.5.0"
+  }
+}

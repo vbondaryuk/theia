@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Schema;
@@ -40,12 +39,9 @@ namespace Theia.Services.SourceCodeBuilders.JsonCodeGenerator
             switch (jsonSchema.Type)
             {
                 case JSchemaType.Array:
-                    if (jsonSchema.Items.Count == 0)
+                    if (!jsonSchema.Items.Any())
                         return "List<object>";
-                    if (jsonSchema.Items.Count == 1)
-                        return $"List<{GetTypeFromSchema(jsonSchema, jsonSchema.Items.First())}>";
-                    throw new Exception("Not sure what type this will be.");
-
+                    return $"List<{GetTypeFromSchema(jsonSchema, jsonSchema.Items.First(), name)}>";
                 case JSchemaType.Boolean:
                     return "bool";
 
@@ -59,11 +55,15 @@ namespace Theia.Services.SourceCodeBuilders.JsonCodeGenerator
                     return "string";
 
                 case JSchemaType.Object:
-                    throw new TheiaException("Object type should be mnage by the base type");
+                    throw new TheiaException("object type must be set in parent class");
 
                 default:
                     return "object";
             }
+        }
+        public override string GetArrayTypeFromSchema(string name)
+        {
+            return $"List<{name}>";
         }
     }
 }
