@@ -1,13 +1,13 @@
-FROM node:argon
+FROM stefanscherer/node-windows:6.7.0-nano
 
-RUN "apt-get update && apt-get clean"
-RUN npm install -g express
-RUN npm install -g nodemon
-RUN npm install -g body-parser
-RUN npm install -g json-schema-generator
+ADD . /app 
+WORKDIR /app
 
-# Create app directory
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
+COPY package.json .
+COPY main.js .
+
+RUN npm install
 
 EXPOSE 8081
+
+CMD [ "node", "main.js" ] 
