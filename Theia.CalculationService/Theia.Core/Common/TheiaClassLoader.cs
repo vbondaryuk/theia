@@ -3,9 +3,9 @@ using java.lang;
 
 namespace Theia.Core.Common
 {
-    public class TheiaClassLoader : ClassLoader
+    internal class TheiaClassLoader : ClassLoader
     {
-        public TheiaClassLoader(Assembly assembly)
+        internal TheiaClassLoader(Assembly assembly)
              : base(new ikvm.runtime.AssemblyClassLoader(assembly))
         {
             

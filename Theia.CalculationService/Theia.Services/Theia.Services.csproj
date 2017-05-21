@@ -55,7 +55,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Calculations\CalculationService.cs" />
     <Compile Include="ObjectBuilders\ObjectBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SourceCodeBuilders\JsonCodeGenerator\CSharpObjectDefinition.cs" />

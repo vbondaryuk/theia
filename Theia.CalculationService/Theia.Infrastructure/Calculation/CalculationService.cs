@@ -13,7 +13,7 @@ namespace Theia.Infrastructure.Calculation
         private readonly IRulesCalculation _rulesCalculation;
         private readonly IRuleMaper _ruleMaper;
 
-        public CalculationService(IRulesCalculation rulesCalculation, IRuleMaper ruleMaper)
+        protected CalculationService(IRulesCalculation rulesCalculation, IRuleMaper ruleMaper)
         {
             _rulesCalculation = rulesCalculation;
             _ruleMaper = ruleMaper;

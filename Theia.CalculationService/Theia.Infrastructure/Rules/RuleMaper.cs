@@ -11,10 +11,12 @@ namespace Theia.Infrastructure.Rules
     {
         public List<IRule> Map(List<RuleModel> ruleModels)
         {
-            return
-                ruleModels.Select(ruleModel => new Rule {Source = ConvertSource(ruleModel.Source)})
-                    .Cast<IRule>()
-                    .ToList();
+            return ruleModels.Select(ConvertRuleFunc()).ToList();
+        }
+
+        private Func<RuleModel, IRule> ConvertRuleFunc()
+        {
+            return ruleModel => new Rule {Source = ConvertSource(ruleModel.Source)};
         }
 
         private string ConvertSource(string source)
@@ -41,7 +43,6 @@ namespace Theia.Infrastructure.Rules
             if (!containsPackage)
             {
                 ruleStringBuilder.Insert(0, "import cli.Theia.*;\n");
-                //ruleStringBuilder.Insert(0,$"package cli.Theia.*;{Environment.NewLine}");
             }
             return ruleStringBuilder.ToString();
         }

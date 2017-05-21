@@ -20,28 +20,6 @@ namespace Theia.Api
             .ConfigureDependencyInjection();
 
             appBuilder.UseWebApi(httpConfiguration);
-            //var httpConfiguration = new HttpConfiguration();
-            //httpConfiguration.Routes.MapHttpRoute(
-            //    name: "DefaultApi",
-            //    routeTemplate: "api/{controller}/{id}",
-            //    defaults: new {id = RouteParameter.Optional}
-            //    );
-
-
-            //var container = new Container();
-
-            //container.Register<IRulesCalculation, RulesCalculation>(Reuse.InWebRequest);
-            //container.Register<IObjectBuilder, ObjectBuilder>(Reuse.InWebRequest);
-            //container.Register<ISourceCodeBuilder, JsonSourceCodeBuilder>(Reuse.InWebRequest);
-            //container.Register<ICalculationService, JsonCalculationServiceAdapter>(Reuse.InWebRequest);
-            //container.Register<IRuleMaper, RuleMaper>(Reuse.InWebRequest);
-
-            //container.WithWebApi(
-            //    httpConfiguration, new[] {GetType().Assembly});
-            //container.RegisterWebApiControllers(
-            //    httpConfiguration, new[] {GetType().Assembly});
-
-            //appBuilder.Use
             appBuilder.UseWebApi(httpConfiguration);
         }
         
@@ -58,10 +36,6 @@ namespace Theia.Api
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
                 );
-            //config.Routes.MapHttpRoute(
-            //    name: "default",
-            //    routeTemplate: "/",
-            //    defaults: new { controller = "values" });
             return httpConfiguration;
         }
         public static HttpConfiguration ConfigureDependencyInjection(this HttpConfiguration httpConfiguration)

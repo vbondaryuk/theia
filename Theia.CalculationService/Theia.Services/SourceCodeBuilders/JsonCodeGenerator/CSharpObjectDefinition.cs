@@ -19,11 +19,11 @@ namespace Theia.Services.SourceCodeBuilders.JsonCodeGenerator
             {
                 sb.AppendLine($"    public {item.Value} {item.Key};");
 
-                sb.AppendLine($"    public void Set{item.Key}({item.Value} value)");
+                sb.AppendLine($"    public void set{item.Key}({item.Value} value)");
                 sb.AppendLine("     {");
                 sb.AppendLine($"        {item.Key} = value;");
                 sb.AppendLine("     }");
-                sb.AppendLine($"    public {item.Value} Get{item.Key}()");
+                sb.AppendLine($"    public {item.Value} get{item.Key}()");
                 sb.AppendLine("     {");
                 sb.AppendLine($"        return {item.Key};");
                 sb.AppendLine("     }");

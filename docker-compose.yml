@@ -1,0 +1,19 @@
+version: '2.1'
+
+services:
+  jsonschema.api-node:
+    image: theia/jsonschema.api-node
+    build:
+      context: ./Theia.JsonSchemaService
+      dockerfile: Dockerfile
+
+  calculation.api-win:
+    image: theia/calculation.api-win
+    build:
+      context: ./Theia.CalculationService
+      dockerfile: Dockerfile    
+  
+networks:
+  default:
+    external:
+      name: nat

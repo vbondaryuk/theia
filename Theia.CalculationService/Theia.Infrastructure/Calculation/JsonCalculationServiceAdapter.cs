@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Theia.Common.Extensions;
@@ -17,7 +18,6 @@ namespace Theia.Infrastructure.Calculation
     {
         private readonly JsonSourceCodeBuilder _sourceCodeBuilder;
         private readonly IObjectBuilder _objectBuilder;
-
 
         public JsonCalculationServiceAdapter(
             IRulesCalculation rulesCalculation, 
@@ -37,22 +37,7 @@ namespace Theia.Infrastructure.Calculation
 
         public CalculationModelResponse Calculate(JsonCalculationRequestModel calculationRequestModel)
         {
-            foreach (var calculationObject in calculationRequestModel.CalculationObjects)
-            {
-                var schema = calculationObject.Schema;
-                if (string.IsNullOrWhiteSpace(schema))
-                {
-                    var dataJson = calculationObject.Data.ToString(Formatting.None);
-                    _sourceCodeBuilder.AddJsonData(calculationObject.RootClassName, dataJson);
-                }
-                else
-                {
-                    _sourceCodeBuilder.AddJsonSchema(calculationObject.RootClassName, calculationObject.Schema);
-                }
-            }
-
-            var sourceCode = _sourceCodeBuilder.Build();
-            var assembly = _objectBuilder.BuildAssembly(sourceCode);
+            var assembly = BuildAssembly(calculationRequestModel);
 
             var objectInfos = new List<CalculationObjectInfo>();
             List<object> calculationObjects = new List<object>();
@@ -82,6 +67,33 @@ namespace Theia.Infrastructure.Calculation
             }
 
             return response;
+        }
+
+        private Assembly BuildAssembly(JsonCalculationRequestModel calculationRequestModel)
+        {
+            var sourceCode = GetAssemblySourceCode(calculationRequestModel);
+            var assembly = _objectBuilder.BuildAssembly(sourceCode);
+            return assembly;
+        }
+
+        private string GetAssemblySourceCode(JsonCalculationRequestModel calculationRequestModel)
+        {
+            foreach (var calculationObject in calculationRequestModel.CalculationObjects)
+            {
+                var schema = calculationObject.Schema;
+                if (string.IsNullOrWhiteSpace(schema))
+                {
+                    var dataJson = calculationObject.Data.ToString(Formatting.None);
+                    _sourceCodeBuilder.AddJsonData(calculationObject.RootClassName, dataJson);
+                }
+                else
+                {
+                    _sourceCodeBuilder.AddJsonSchema(calculationObject.RootClassName, calculationObject.Schema);
+                }
+            }
+
+            var sourceCode = _sourceCodeBuilder.Build();
+            return sourceCode;
         }
 
         private class CalculationObjectInfo

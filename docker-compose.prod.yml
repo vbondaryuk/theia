@@ -1,0 +1,16 @@
+version: '2.1'
+
+# You need to start it with the following CLI command:
+# docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+# If you need to rebuild you must use CLI command:
+# docker-compose -f docker-compose.yml build
+
+services:
+  jsonschema.api-node:
+    ports:
+      - "8081:8081"
+
+  calculation.api-win:
+    ports:
+      - "8082:8082"
