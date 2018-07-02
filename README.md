@@ -43,7 +43,7 @@ Field **Rules** contains array rules:
 ```
 | Field | Require | Description |
 | ------ | ------ |------ |
-| Priority | no (default: 0) | Rule calculation priority. When system calculates rules, it was being calculated rules with high priority, then less. Rules with equals priority will calculated together. |
+| Priority | no (default: 0) | Rule calculation priority. When system calculates rules, Firstly will be calculated rules with highest priority, then with less piority. Rules with equals priority will calculated together. |
 | Source | yes | Source code rule. Field is string. Rule in DRL format |
 
 This example illustrates a simple rule with filled priority:
@@ -83,9 +83,9 @@ Contains array objects. It has to have format like:
 
 | Field | Require | Description |
 | ------ | -- | ------ |
-| RootClassName | yes | **root** class name. You have to put it because it's impossible understand base class name from JSON |
-| Schema | no | Json schema's object. Recommended to put it if you have large object's array |
-| Data | yes | object's array. Objects must be only one type. Embedded objects are possible |
+| RootClassName | yes | **root** class name. You have to put it because it's impossible retrieve base class name from JSON |
+| Schema | no | Json schema's object. Recommended to put it if you have large object's array(it reduces calculation time) |
+| Data | yes | object's array. Only one type objects possible. Embedded objects are possible |
 
 About json schema you can see:
 
@@ -94,7 +94,7 @@ About json schema you can see:
   - [Online Editor](https://jsonschema.net/#/editor)
   - **Recommended** creates json schema with theia.jsonschemaservice(p. 2)
 
-This example illustrates object with embedded objects(array: tags and object: dimensions)
+This example illustrates main object with two embedded objects(array: tags and object: dimensions)
 ```json
 {  
     "RootClassName":"Coordinate",
@@ -127,7 +127,7 @@ This services accessed by using **post** method and read json from body:
 Example:
 ```sh
 POST /jsonschema HTTP/1.1
-Host: [host]:[post]
+Host: [host]:[port]
 Content-Type: application/json
 Cache-Control: no-cache
 
@@ -138,7 +138,7 @@ Cache-Control: no-cache
 response will be json schema for this object.
 
 ### 3. Calculation query examples
- - Query with example creation new object into rule, priority and DRL aggregation function
+ - Query with example creation new object from rule, priority and DRL aggregation function
 request:
 ```json
 {  
@@ -192,9 +192,9 @@ end"
    ]
 }
 ```
- - first rule created new object Person and added it to calculation session.
- - aggregation function found and calculates count person, whose age less then 25. 
- - updated all Person's field(Count)
+ - first rule will create new object Person and  will add it to calculation session.
+ - aggregation function will find and calculate count of person, whose age less then 25. 
+ - update all Person's field(Count)
  
 response:
 ```json
@@ -235,7 +235,7 @@ response:
 }
 ```
 
-- Query with example embeded objects, DRL aggregation function, and additional function **round**
+- Query with example embeded objects, DRL aggregation function, and additional function **roundFunc**
 
 request:
 ```json
@@ -357,5 +357,4 @@ response:
   ]
 }
 ```
-For use this opportunity you have to use construction like:
-in this example you can see method from C# language **cli.System.Math.Round**. For use this opportunity you have to use construction like: [cli].[name method with full path]
+In this example you can see method from C# language **cli.System.Math.Round**. For use this opportunity you have to use construction like: [cli].[namespace].[class].[method]
