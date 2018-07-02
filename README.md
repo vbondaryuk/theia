@@ -1,55 +1,56 @@
 # Theia
 
-Theia это система динамического расчета объектов на основании бизнес правил.
+Theia is system for dynamic calculation objects based on Drools Rule Engine
 
-  - Данные формата json
-  - Правила расчета на языке бизнес правил Drools
-  - RestApi позволяющее взаимодействовать с приложениями на любых языках
+  - Objects in JSON format
+  - Business Rules are rules on DRL (Drools Rule Language) format
+  - RestApi for communication between Theia and your application
+  - Easy deploy ensure docker, see file docker-compose.prod.yml
 
-## 1. Использование
+## 1. Usages
 
-Входной json должен иметь следующий формат:
+Request JSON has to format like:
 ```json
 {  
    "Rules":[  ],
    "CalculationObjects":[  ]
 }
 ```
-| Поле | Обязательно |Описание |
+| Field | Require | Description |
 | ------ | ------ |------ |
-| Rules | да | Массив правил (п. 1.1) |
-| CalculationObjects | да | Массив объектов для расчета (п. 1.2) |
+| Rules | yes | Array rule (p. 1.1) |
+| CalculationObjects | yes | Array object for calculation (p. 1.2) |
 
-Ответный json имеет следующий формат:
+Response JSON has format:
 ```json
 {  
    "FiredRules": 0,
    "CalculationObjects":[  ]
 }
 ```
-| Поле | Описание |
+| Field | Description |
 | ------ | ------ |
-| FiredRules | количество отработанных правил |
-| CalculationObjects | Массив объектов для расчета (п. 1.2) |
+| FiredRules | Count fired rules |
+| CalculationObjects | Array calculated objects (p. 1.2) |
 
-### 1.1 Правила (Rules)
-Поле Rules содержит массив правил следующего формата:
+### 1.1 Rules
+Field **Rules** contains array rules:
 ```json
 {  
     "Priority":0,
     "Source":""
 }
 ```
-| Поле | Обязательно |Описание |
+| Field | Require | Description |
 | ------ | ------ |------ |
-| Priority | нет (default: 0) |Приоритет выполнения правила. Правило с большим приоритетом будет выполнятся в первую очередь. Правила с одинаковым приоритетом будут выполняться одновременно |
-| Source | да | Исходный код правила в формате string |
+| Priority | no (default: 0) | Rule calculation priority. When system calculates rules, it was being calculated rules with high priority, then less. Rules with equals priority will calculated together. |
+| Source | yes | Source code rule. Field is string. Rule in DRL format |
 
-Пример заполненного правила:
+This example illustrates a simple rule with filled priority:
 ```json
 "Rules":[  
       {  
-         "Priority":0,
+         "Priority":1,
          "Source":"
 dialect \"mvel\"
 rule \"test\" 
@@ -62,11 +63,11 @@ end"
 ]      
 ```
 
-В исходном коде правила не нужно указывать **package** и **import** для объектов. потому что будут добавлены только те объекты которые указаны в исходном формате.
+In source code you haven't to put **package** and **import** for object, because you can use only objects from JSON.
 
-### 1.2 Объекты (CalculationObjects)
+### 1.2 Objects (CalculationObjects)
 
-Поле CalculationObjects содержит массив объектов следующего формата:
+Contains array objects. It has to have format like:
 ```json
 {  
     "RootClassName":"Person",
@@ -80,19 +81,20 @@ end"
 }
 ```
 
-| Поле | Обязательно |Описание |
+| Field | Require | Description |
 | ------ | -- | ------ |
-| RootClassName | да | наименование **root** класса. Указывается так как из json понять наименование **root** класса невозможно. |
-| Schema | нет | Json schema объекта. Рекомендуется указывать при больших объемах данных.|
-| Data | да | массив объектов. Объекты должны быть **только**  одного типа. Вложенные объекты допускаются |
+| RootClassName | yes | **root** class name. You have to put it because it's impossible understand base class name from JSON |
+| Schema | no | Json schema's object. Recommended to put it if you have large object's array |
+| Data | yes | object's array. Objects must be only one type. Embedded objects are possible |
 
-Подробнее о json schema можно посмотреть:
-- [Документация](https://spacetelescope.github.io/understanding-json-schema/index.html)
-- [Online Editor](https://jsonschema.net/#/editor)
-- **Рекомендуется** Создание json schema при помощи локального сервиса(п. 2)
+About json schema you can see:
 
-Пример с вложенными объектами:
 
+  - [Documentation](https://spacetelescope.github.io/understanding-json-schema/index.html)
+  - [Online Editor](https://jsonschema.net/#/editor)
+  - **Recommended** creates json schema with theia.jsonschemaservice(p. 2)
+
+This example illustrates object with embedded objects(array: tags and object: dimensions)
 ```json
 {  
     "RootClassName":"Coordinate",
@@ -115,12 +117,14 @@ end"
 }
 ```
 
-в правилах к таким объектам можно будет обращаться по полям: **tags**, **dimensions**
+In rules you can use this objects by fields: **tags**, **dimensions**
 
-### 2. Создание схем
-Для создания схем на основании json создан сервис который работает по [host]:[port]/jsonschema
-Данный сервис принимает **post** запрос с json в body:
-Пример post запроса:
+### 2. JSON Schema creation
+For creation JSON Schema you can use the theia.jsonschemaservice, it's available in [host]:[port]/jsonschema
+where host/port you can set in config files. If you will use docker containers it will set up automatically.
+
+This services accessed by using **post** method and read json from body:
+Example:
 ```sh
 POST /jsonschema HTTP/1.1
 Host: [host]:[post]
@@ -131,9 +135,11 @@ Cache-Control: no-cache
    "Rules":{}
 }
 ```
+response will be json schema for this object.
 
-### 3. Примеры запросов
- - Запрос с созданием нового объекта и приоритизацией
+### 3. Calculation query examples
+ - Query with example creation new object into rule, priority and DRL aggregation function
+request:
 ```json
 {  
    "Rules":[  
@@ -144,7 +150,7 @@ dialect \"mvel\"
 rule \"test\" 
 when 
 	$pe:Person() 
-	personCount : Number( ) from accumulate ( $pesron : Person(Age > 30), count($pesron))      
+	personCount : Number( ) from accumulate ( $person : Person(Age > 30), count($person))      
 then      
 	$pe.Count = personCount;
 end"
@@ -186,11 +192,11 @@ end"
    ]
 }
 ```
- - первое отрабатывает правило которое добавляет новый объект Person.
- - выполняется поиск количества объектов Person у которых Age < 25.
- - обновляются поле Count всех объектов Person
+ - first rule created new object Person and added it to calculation session.
+ - aggregation function found and calculates count person, whose age less then 25. 
+ - updated all Person's field(Count)
  
-ответ:
+response:
 ```json
 {
   "FiredRules": 3,
@@ -229,13 +235,13 @@ end"
 }
 ```
 
-- запрос с использованием вложенных объектов, аккумулирующих функций и дополнительной функции **round**
- запрос:
+- Query with example embeded objects, DRL aggregation function, and additional function **round**
+
+request:
 ```json
 {  
    "Rules":[        
 	  {
-		"Priority":0,
         "Source":"  
 function double roundFunc( double a, int scale ){
   return cli.System.Math.Round( a, scale );
@@ -270,8 +276,8 @@ end"
                   "length":7.0,
                   "width":12.0,
                   "height":9.5,
-				  "zindex":0,
-				  "zindex2":0
+		  "zindex":0,
+	          "zindex2":0
                },
                "warehouseLocation":{  
                   "latitude":-78.75,
@@ -286,8 +292,8 @@ end"
                   "length":3.1,
                   "width":1.0,
                   "height":1.0,
-				  "zindex":0,
-				  "zindex2":0
+		  "zindex":0,
+		  "zindex2":0
                },
                "warehouseLocation":{  
                   "latitude":54.4,
@@ -299,7 +305,8 @@ end"
    ]
 }
 ```
-ответ
+
+response:
 ```json
 {
   "FiredRules": 1,
@@ -350,4 +357,5 @@ end"
   ]
 }
 ```
-в данном примере можно отметить использование функции из языка C# **cli.System.Math.Round**. Для использования необходимо указывать [cli].[наименование функции с полным алиасом]
+For use this opportunity you have to use construction like:
+in this example you can see method from C# language **cli.System.Math.Round**. For use this opportunity you have to use construction like: [cli].[name method with full path]
