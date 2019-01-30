@@ -2,8 +2,9 @@
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json.Schema;
-using Theia.Common.Utilits;
+using Theia.Common.Utils;
 using Theia.Core.Services;
 using Theia.Services.SourceCodeBuilders.JsonCodeGenerator;
 
@@ -12,6 +13,7 @@ namespace Theia.Services.SourceCodeBuilders
     public class JsonSourceCodeBuilder : ISourceCodeBuilder
     {
         private readonly Dictionary<string, string> _jsonSchemaDictionary;
+
         public JsonSourceCodeBuilder()
         {
             _jsonSchemaDictionary = new Dictionary<string, string>();
@@ -19,10 +21,11 @@ namespace Theia.Services.SourceCodeBuilders
 
         public JsonSourceCodeBuilder AddJsonData(string className, string dataJson)
         {
-            var jsonSchema = CreateJsonSchema(dataJson);
+            var jsonSchema = CreateJsonSchema(dataJson).GetAwaiter().GetResult();
             _jsonSchemaDictionary.Add(className, jsonSchema);
             return this;
         }
+
         public JsonSourceCodeBuilder AddJsonSchema(string className, string jsonSchema)
         {
             _jsonSchemaDictionary.Add(className, jsonSchema);
@@ -32,9 +35,12 @@ namespace Theia.Services.SourceCodeBuilders
         public string Build()
         {
             var objectsCodeStringBuilder = new StringBuilder();
-            var schemaTuples = (from keyValue in _jsonSchemaDictionary
-                let jsonSchema = JSchema.Parse(keyValue.Value)
-                select new SchemaInfoTuple(jsonSchema, keyValue.Key)).ToList();
+            var schemaTuples = new List<SchemaInfoTuple>();
+            foreach (var keyValue in _jsonSchemaDictionary)
+            {
+	            JSchema jsonSchema = JSchema.Parse(keyValue.Value);
+	            schemaTuples.Add(new SchemaInfoTuple(jsonSchema, keyValue.Key));
+            }
 
             var schemaGenerator = new SourceCodeGenerator<CSharpObjectDefinition>(schemaTuples);
             objectsCodeStringBuilder.AppendLine(schemaGenerator.Generate());
@@ -50,7 +56,7 @@ namespace Theia
             return sourceCode;
         }
 
-        private string CreateJsonSchema(string jsonData)
+        private async Task<string> CreateJsonSchema(string jsonData)
         {
             var address = $"{StaticVariables.SchemaGeneratorHost}:{StaticVariables.SchemaGeneratorPort}/jsonSchema";
 
@@ -58,8 +64,8 @@ namespace Theia
             {
                 var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
-                var response = client.PostAsync(address, content).Result;
-                return response.Content.ReadAsStringAsync().Result;
+                var response = await client.PostAsync(address, content);
+                return  await response.Content.ReadAsStringAsync();
             }
         }
     }

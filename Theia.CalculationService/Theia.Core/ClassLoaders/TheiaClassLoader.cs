@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using java.lang;
 
-namespace Theia.Core.Common
+namespace Theia.Core.ClassLoaders
 {
     internal class TheiaClassLoader : ClassLoader
     {

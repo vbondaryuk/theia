@@ -7,9 +7,9 @@ namespace Theia.Common.Extensions
 {
     public static class Extensions
     {
-        public static List<T> OfType<T>(this IEnumerable<T> list, Type type)
+        public static IEnumerable<T> OfType<T>(this IEnumerable<T> list, Type type)
         {
-            return list.Where(x => x.GetType() == type).ToList();
+            return list.Where(x => x.GetType() == type);
         }
 
         public static bool IsList(object value)

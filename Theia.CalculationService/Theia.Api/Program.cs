@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Microsoft.Owin.Hosting;
-using Theia.Common.Utilits;
+using Theia.Common.Utils;
 
 namespace Theia.Api
 {

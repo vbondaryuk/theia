@@ -16,17 +16,14 @@ namespace Theia.Infrastructure.Calculation
 {
     public class JsonCalculationServiceAdapter : CalculationService
     {
-        private readonly JsonSourceCodeBuilder _sourceCodeBuilder;
         private readonly IObjectBuilder _objectBuilder;
 
         public JsonCalculationServiceAdapter(
             IRulesCalculation rulesCalculation, 
-            IRuleMaper ruleMaper,
-            ISourceCodeBuilder sourceCodeBuilder, 
+            IRuleMapper ruleMapper,
             IObjectBuilder objectBuilder)
-            : base(rulesCalculation, ruleMaper)
+            : base(rulesCalculation, ruleMapper)
         {
-            _sourceCodeBuilder = (JsonSourceCodeBuilder) sourceCodeBuilder;
             _objectBuilder = objectBuilder;
         }
 
@@ -62,7 +59,7 @@ namespace Theia.Infrastructure.Calculation
             var response = new CalculationModelResponse {FiredRules = countExequtedRules};
             foreach (var objectInfo in objectInfos)
             {
-                var data = calculationObjects.OfType(objectInfo.Type);
+                var data = calculationObjects.OfType(objectInfo.Type).ToList();
                 response.CalculationObjects.Add(new CalculationObjectModel<object> {Data = data, RootClassName = objectInfo.RootClassName});
             }
 
@@ -71,28 +68,29 @@ namespace Theia.Infrastructure.Calculation
 
         private Assembly BuildAssembly(JsonCalculationRequestModel calculationRequestModel)
         {
-            var sourceCode = GetAssemblySourceCode(calculationRequestModel);
+            var sourceCode = BuildAssemblySourceCode(calculationRequestModel);
             var assembly = _objectBuilder.BuildAssembly(sourceCode);
             return assembly;
         }
 
-        private string GetAssemblySourceCode(JsonCalculationRequestModel calculationRequestModel)
+        private string BuildAssemblySourceCode(JsonCalculationRequestModel calculationRequestModel)
         {
-            foreach (var calculationObject in calculationRequestModel.CalculationObjects)
+	        var sourceCodeBuilder = new JsonSourceCodeBuilder();
+			foreach (var calculationObject in calculationRequestModel.CalculationObjects)
             {
                 var schema = calculationObject.Schema;
                 if (string.IsNullOrWhiteSpace(schema))
                 {
                     var dataJson = calculationObject.Data.ToString(Formatting.None);
-                    _sourceCodeBuilder.AddJsonData(calculationObject.RootClassName, dataJson);
+                    sourceCodeBuilder.AddJsonData(calculationObject.RootClassName, dataJson);
                 }
                 else
                 {
-                    _sourceCodeBuilder.AddJsonSchema(calculationObject.RootClassName, calculationObject.Schema);
+                    sourceCodeBuilder.AddJsonSchema(calculationObject.RootClassName, calculationObject.Schema);
                 }
             }
 
-            var sourceCode = _sourceCodeBuilder.Build();
+            var sourceCode = sourceCodeBuilder.Build();
             return sourceCode;
         }
 

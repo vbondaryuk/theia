@@ -1,6 +1,4 @@
-﻿using Theia.Core.Models;
-
-namespace Theia.Infrastructure.Models
+﻿namespace Theia.Core.Models
 {
     public class Rule : IRule
     {

@@ -4,7 +4,7 @@ using Theia.Infrastructure.Models;
 
 namespace Theia.Infrastructure.Rules
 {
-    public interface IRuleMaper
+    public interface IRuleMapper
     {
         List<IRule> Map(List<RuleModel> ruleModels);
     }

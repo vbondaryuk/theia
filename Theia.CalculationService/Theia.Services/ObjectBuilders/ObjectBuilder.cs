@@ -3,7 +3,7 @@ using System.CodeDom.Compiler;
 using System.Reflection;
 using System.Text;
 using Theia.Common.Exceptions;
-using Theia.Common.Utilits;
+using Theia.Common.Utils;
 using Theia.Core.Services;
 
 namespace Theia.Services.ObjectBuilders
@@ -12,13 +12,14 @@ namespace Theia.Services.ObjectBuilders
     {
         public Assembly BuildAssembly(string sourceCode)
         {
-            var libraryName = $"{StaticVariables.GetDynamicAssemblyPath()}\\{Guid.NewGuid().ToString("D")}.dll";
+            var libraryName = $"{StaticVariables.DynamicAssemblyPath()}\\{Guid.NewGuid():D}.dll";
             CodeDomProvider compiler = CodeDomProvider.CreateProvider("CSharp");
             CompilerParameters parameters = new CompilerParameters
             {
                 GenerateExecutable = false,
                 OutputAssembly = libraryName
             };
+
             var results = compiler.CompileAssemblyFromSource(parameters, sourceCode);
             if (results.Errors.HasErrors)
             {
@@ -28,9 +29,11 @@ namespace Theia.Services.ObjectBuilders
                     errors.AppendLine($"{error.ErrorNumber}   {error.ErrorText}");
                 }
                 
-                throw new TheiaException($"При компиляции кода возникли ошибки: {Environment.NewLine} {errors}");
+                throw new TheiaException($"Assembly was not compiled: {Environment.NewLine} {errors}");
             }
+
             var assembly = Assembly.LoadFrom(libraryName);
+
             return assembly;
         }
     }

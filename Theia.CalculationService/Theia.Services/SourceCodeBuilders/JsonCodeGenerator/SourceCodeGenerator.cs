@@ -28,8 +28,10 @@ namespace Theia.Services.SourceCodeBuilders.JsonCodeGenerator
             {
                 ConvertJsonSchemaToModel(schemaInfoTuple.JSchema, schemaInfoTuple.RootClassName);
             }
+
             return ToString();
         }
+
         private void ConvertJsonSchemaToModel(JSchema schema, string rootClassName)
         {
             if (schema.Type == null)

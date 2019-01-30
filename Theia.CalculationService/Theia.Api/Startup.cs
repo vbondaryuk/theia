@@ -46,7 +46,7 @@ namespace Theia.Api
             container.Register<IObjectBuilder, ObjectBuilder>(Reuse.InWebRequest);
             container.Register<ISourceCodeBuilder, JsonSourceCodeBuilder>(Reuse.InWebRequest);
             container.Register<ICalculationService, JsonCalculationServiceAdapter>(Reuse.InWebRequest);
-            container.Register<IRuleMaper, RuleMaper>(Reuse.InWebRequest);
+            container.Register<IRuleMapper, RuleMapper>(Reuse.InWebRequest);
             container.WithWebApi(httpConfiguration);
 
             return httpConfiguration;

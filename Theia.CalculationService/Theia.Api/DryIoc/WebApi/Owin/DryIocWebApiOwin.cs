@@ -1,7 +1,7 @@
 ﻿/*
 The MIT License (MIT)
 
-Copyright (c) 2016 Maksim Volkau
+Copyright (c) 2014 Maksim Volkau
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -56,12 +56,9 @@ namespace DryIoc.WebApi.Owin
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             var owinContext = request.GetOwinContext();
-            if (owinContext != null)
-            {
-                var scopedContainer = owinContext.GetDryIocScopedContainer();
-                if (scopedContainer != null) // Use existing OWIN ScopeContainer for WebApi dependency resolver
-                    request.Properties[HttpPropertyKeys.DependencyScope] = new DryIocDependencyScope(scopedContainer);
-            }
+            var scopedContainer = owinContext?.GetDryIocScopedContainer();
+            if (scopedContainer != null) // Use existing OWIN ScopeContainer for WebApi dependency resolver
+                request.Properties[HttpPropertyKeys.DependencyScope] = new DryIocDependencyScope(scopedContainer);
 
             return base.SendAsync(request, cancellationToken);
         }

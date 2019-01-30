@@ -2,15 +2,19 @@
 using System.Configuration;
 using System.IO;
 
-namespace Theia.Common.Utilits
+namespace Theia.Common.Utils
 {
     public static class StaticVariables
     {
-        public static string GetDynamicAssemblyPath()
+	    private static string _dynamicAssemblyDirectory;
+
+        public static string DynamicAssemblyPath()
         {
-            var directory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DynamicAssembly");
-            Directory.CreateDirectory(directory);
-            return directory;
+	        if (_dynamicAssemblyDirectory != null) return _dynamicAssemblyDirectory;
+	        var directory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DynamicAssembly");
+	        Directory.CreateDirectory(directory);
+	        _dynamicAssemblyDirectory = directory;
+	        return _dynamicAssemblyDirectory;
         }
 
         public static string TheiaHost => ConfigurationManager.AppSettings["Theia.Host"];
